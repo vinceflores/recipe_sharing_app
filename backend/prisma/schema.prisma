@@ -18,3 +18,37 @@ model User {
   clerkId String @unique
   email   String
 }
+
+model Recipe {
+  id String @id @default(uuid())
+
+  name        String
+  description String
+  images      Image[]
+  video_url   Video[]
+}
+
+model Image {
+  id       String  @id @default(uuid())
+  url      String
+  name     String
+  format   String
+  Recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId String?
+}
+
+model Video {
+  id       String  @id @default(uuid())
+  url      String
+  name     String
+  Recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId String?
+}
+
+model Comment {
+  id       String  @id @default(uuid())
+  title    String
+  commect  String
+  recipeId String?
+}
+

@@ -25,6 +25,16 @@ export class RecipeController {
     return this.recipeService.findAll();
   }
 
+  @Get("/recents")
+  findRecents() {
+    return this.recipeService.findRecents();
+  }
+
+  @Get("/trending")
+  findAllTrending() {
+    return this.recipeService.findTrending();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.recipeService.findOne(id);
@@ -37,6 +47,6 @@ export class RecipeController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.recipeService.remove(+id);
+    return this.recipeService.remove(id);
   }
 }

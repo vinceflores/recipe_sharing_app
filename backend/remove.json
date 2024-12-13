@@ -1,0 +1,13 @@
+{
+  "Id": "Policy1731816397923",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1731816318186",
+      "Action": "s3:*",
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::recipesharingvf",
+      "Principal": "*"
+    }
+  ]
+}

@@ -2,36 +2,112 @@ import { Injectable } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Response } from 'express';
+import { Category, Prisma } from '@prisma/client';
+
 @Injectable()
 export class RecipeService {
+  include: Prisma.RecipeInclude = {
+    user: {
+      select: { id: true, email: true },
+    },
+    images: true,
+    video_url: true,
+    categories: true,
+    likes: true,
+    comments: true,
+  };
+
   constructor(private prisma: PrismaService) {}
 
-  create(createRecipeDto: CreateRecipeDto) {
-    const images = createRecipeDto.images;
-    const videos = createRecipeDto.video_url;
+  async create(dto: CreateRecipeDto) {
+    const images = dto.images;
+    const videos = dto.video_url;
+    const categories: Category[] = dto.categories;
 
-    // insert transaction
-
-    return 'This action adds a new recipe';
-  }
-
-  findAll() {
-    return `This action returns all recipe`;
-  }
-
-  async findOne(id: string): Promise<CreateRecipeDto> {
-    const recipe = await this.prisma.recipe.findFirst({
-      where: { id },
+    const recipe = await this.prisma.recipe.create({
+      data: {
+        userId: dto.userId,
+        title: dto.title,
+        ingredients: dto.ingredients,
+        instructions: dto.instructions,
+        images: images?.length > 0 && {
+          create: dto.images.map((img) => ({
+            url: img,
+            name: '',
+            format: '',
+          })),
+        },
+        video_url: videos.length > 0 && {
+          create: videos.map((vid) => ({
+            url: vid,
+            name: '',
+          })),
+        },
+        categories: categories?.length > 0 && {
+          connect: categories.map((c) => ({
+            id: c.id,
+          })),
+        },
+      },
+      include: this.include,
     });
-    return recipe;
+  }
+
+  async findAll() {
+    return await this.prisma.recipe.findMany({
+      include: this.include,
+    });
+  }
+
+  async findRecents() {
+    return await this.prisma.recipe.findMany({
+      include: this.include,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findTrending() {
+    return await this.prisma.recipe.findMany({
+      include: {
+        ...this.include,
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+      },
+      orderBy: {
+        likes: {
+          _count: 'desc',
+        },
+      },
+    });
+  }
+
+  async findOne(id: string) {
+    return await this.prisma.recipe.findFirst({
+      where: { id },
+      include: this.include,
+    });
   }
 
   async update(id: string, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+    return await this.prisma.recipe.update({
+      where: { id },
+      data: {
+        userId: id,
+        ingredients: updateRecipeDto.ingredients,
+        instructions: updateRecipeDto.instructions,
+        title: updateRecipeDto.title,
+      },
+    });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: string) {
+    return await this.prisma.recipe.delete({
+      where: { id },
+    });
   }
 }

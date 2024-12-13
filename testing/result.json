@@ -1,0 +1,7 @@
+{
+  one: <Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 03 4d 00 00 03 74 08 06 00 00 00 68 76 c3 49 00 00 00 01 73 52 47 42 00 ae ce 1c e9 00 00 20 00 ... 95237 more bytes>,
+  two: <Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 05 45 00 00 02 de 08 06 00 00 00 8d e4 70 c2 00 00 00 01 73 52 47 42 00 ae ce 1c e9 00 00 00 38 ... 225110 more bytes>
+}
+{
+  data: { success: false, error: { issues: [Array], name: 'ZodError' } }
+}

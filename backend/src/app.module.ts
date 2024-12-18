@@ -5,6 +5,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import * as dotenv from 'dotenv';
 import { ConfigModule } from '@nestjs/config';
 import { ClerkModule } from './clerk/clerk.module';
+import { RecipeModule } from './recipe/recipe.module';
+import { UserModule } from './user/user.module';
 
 dotenv.config({ path: process.cwd() });
 @Module({
@@ -14,6 +16,8 @@ dotenv.config({ path: process.cwd() });
     }),
     PrismaModule,
     ClerkModule,
+    RecipeModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

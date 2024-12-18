@@ -17,9 +17,9 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return this.appService.uploadFile(file);
-  }
+  // @Post('upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //   return this.appService.uploadFile(file);
+  // }
 }

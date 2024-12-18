@@ -1,8 +1,15 @@
 import React from 'react'
+import { getLiked } from '../../../actions/getRecipes'
+import { RecipeList } from '../../../components/RecipeList'
 
-function LikedRecipes() {
+async function LikedRecipes() {
+    const recipes = await getLiked()
+    if(!recipes) return <div>No Liked Recipes Yet</div>
     return (
-        <div>LikedRecipes </div>
+        <div>
+            <h2>Liked Recipes</h2>
+            <RecipeList recipes={recipes} />
+        </div>
     )
 }
 

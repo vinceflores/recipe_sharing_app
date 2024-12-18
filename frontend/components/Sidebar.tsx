@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Home, Utensils, Clock, ThumbsUp, PlaySquare, PlusCircle, User } from 'lucide-react'
+import { Home, Utensils, Clock, ThumbsUp, PlusCircle, User } from 'lucide-react'
 
 export function Sidebar() {
   return (

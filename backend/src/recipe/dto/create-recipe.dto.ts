@@ -9,5 +9,5 @@ export class CreateRecipeDto {
   categories: Category[];
 
   images: string[];
-  video_url: string[];
+  video_url?: string[];
 }

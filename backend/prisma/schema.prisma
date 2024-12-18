@@ -34,9 +34,9 @@ model Settings {
 model Recipe {
   id String @id @default(uuid())
 
-  title        String
-  ingredients  String
-  instructions String
+  title        String @default("")
+  ingredients  String @default("")
+  instructions String @default("")
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @default("")

@@ -11,7 +11,7 @@ export class RecipeService {
       select: { id: true, email: true },
     },
     images: true,
-    video_url: true,
+    // video_url: true,
     categories: true,
     likes: true,
     comments: true,
@@ -37,20 +37,14 @@ export class RecipeService {
             format: '',
           })),
         },
-        video_url: videos.length > 0 && {
-          create: videos.map((vid) => ({
-            url: vid,
-            name: '',
-          })),
-        },
         categories: categories?.length > 0 && {
           connect: categories.map((c) => ({
             id: c.id,
           })),
         },
       },
-      include: this.include,
     });
+    return recipe;
   }
 
   async findAll() {
@@ -59,6 +53,7 @@ export class RecipeService {
     });
   }
 
+  // TODO Extract to QueryRecipeService
   async findRecents() {
     return await this.prisma.recipe.findMany({
       include: this.include,
@@ -68,6 +63,7 @@ export class RecipeService {
     });
   }
 
+  // TODO Extract to QueryRecipeService
   async findTrending() {
     return await this.prisma.recipe.findMany({
       include: {
@@ -93,15 +89,117 @@ export class RecipeService {
     });
   }
 
+  // TODO Extract to CategoryRecipeService
+  async findAllByCategory(category: string) {
+    // return 'by categories';
+    return await this.prisma.recipe.findMany({
+      where: {
+        categories: {
+          some: {
+            name: {
+              contains: category,
+            },
+          },
+        },
+      },
+      include: this.include,
+    });
+  }
+
+  // TODO extract to LikeRecipeService
+  async findLiked(userId: string) {
+    return await this.prisma.recipe.findMany({
+      where: {
+        likes: {
+          some: {
+            userId,
+          },
+        },
+      },
+      include: {
+        user: true,
+        likes: true,
+        images: true,
+        comments: true,
+      },
+    });
+  }
+
+  // TODO extract to LikeRecipeService
+  async likeRecipe(id: string, userId: string) {
+    let data = {};
+
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id },
+      select: {
+        _count: {
+          select: {
+            likes: {
+              where: { userId },
+            },
+          },
+        },
+      },
+    });
+
+    if (!recipe) return;
+
+    if (recipe._count.likes == 0) {
+      data = { likes: { create: { userId } } };
+    } else {
+      data = {
+        likes: {
+          delete: {
+            userId_recipeId: {
+              recipeId: id,
+              userId,
+            },
+          },
+        },
+      };
+    }
+    return await this.prisma.recipe.update({
+      data,
+      where: { id },
+    });
+  }
+
+  async search(query: string) {
+    return await this.prisma.recipe.findMany({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { ingredients: { contains: query } },
+          { instructions: { contains: query } },
+          { user: { email: { contains: query } } },
+          {
+            categories: {
+              some: {
+                name: {
+                  contains: query,
+                },
+              },
+            },
+          },
+          {
+            comments: {
+              some: {
+                comment: {
+                  comment: { contains: query },
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: this.include,
+    });
+  }
+
   async update(id: string, updateRecipeDto: UpdateRecipeDto) {
     return await this.prisma.recipe.update({
       where: { id },
-      data: {
-        userId: id,
-        ingredients: updateRecipeDto.ingredients,
-        instructions: updateRecipeDto.instructions,
-        title: updateRecipeDto.title,
-      },
+      data: { ...updateRecipeDto },
     });
   }
 

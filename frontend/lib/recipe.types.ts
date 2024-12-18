@@ -9,21 +9,24 @@ export type RecipePreview = {
   views: number;
   thumbnail: string;
   authorAvatar: string;
+  likes: number;
 };
 
 export type Recipe = {
   title: string;
   ingredients: string;
   instructions: string;
+
   createdAt: Date;
   updateedAt: Date;
 
   categories: Category[];
   images: Image[];
   video_url: Video[];
-  likes: Likes[];
-  comments: Comments[];
-  user: User;
+
+  likes?: Likes[];
+  comments?: Comments[];
+  user?: User;
 } & WithId &
   WithUserId;
 
@@ -33,6 +36,6 @@ type Media = { url: string; name: string } & WithId;
 export type Image = Media & WithRecipeId & { format: string };
 export type Video = Media & WithRecipeId & {};
 
-export type Category = { name: string } & WithId;
+export type Category = { id?: string; name: string; icon: string };
 export type Comments = {} & WithId & WithUserId;
 export type Likes = { userId: string; recipeId: string };

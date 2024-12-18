@@ -1,18 +1,25 @@
-import { getRecipesByAuthor } from '../actions'
-import { RecipeCard } from '@/components/RecipeCard'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react'
+import { currentUser } from '@clerk/nextjs/server'
+import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react'
+import { getUser } from '../../actions/user'
+import { RecipeList } from '../../components/RecipeList'
+import { recipesAdapter } from '../../lib/recipe.adapter'
 
 export default async function Profile() {
-  const author = 'Current User' // In a real app, this would be the logged-in user
-  const recipes = await getRecipesByAuthor(author)
+  const user = await currentUser()
+  if (!user) return <div>Not signed in</div>
 
+  const u = await getUser()
+  if (!u) return <div>Not signed in </div>
+
+  const author = user.emailAddresses[0].emailAddress || 'Current User' // In a real app, this would be the logged-in user
+  const imageUrl = user.imageUrl
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center space-x-4 mb-8">
+      <div className="flex items-center space-x-4 mb-8 pb-8">
         <Avatar className="h-24 w-24">
-          <AvatarImage src="/placeholder.svg?height=96&width=96" alt={author} />
+          <AvatarImage src={imageUrl as string || "/placeholder.svg?height=96&width=96"} alt={author} />
           <AvatarFallback>{author[0]}</AvatarFallback>
         </Avatar>
         <div>
@@ -36,18 +43,7 @@ export default async function Profile() {
       </div>
 
       <h2 className="text-2xl font-bold mb-4">My Recipes</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {recipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            title={recipe.title}
-            author={recipe.author}
-            views={Math.floor(Math.random() * 10000)} // Random view count for demonstration
-            thumbnail="/placeholder.svg?height=200&width=300"
-            authorAvatar="/placeholder.svg?height=32&width=32"
-          />
-        ))}
-      </div>
+      <RecipeList recipes={recipesAdapter(u.recipe)} />
     </div>
   )
 }

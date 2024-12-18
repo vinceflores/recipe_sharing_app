@@ -1,26 +1,56 @@
-import { getRecipes } from "@/actions/getRecipes";
+"use client"
+import { useRouter } from "next/navigation";
+import { RecipePreview } from "../lib/recipe.types";
+import { cn } from "../lib/utils";
+import { RecipeCard, RecipeCardProps } from "./RecipeCard";
+import Grid from '@/components/layout/Grid'
+import { useRecipeByCategory } from "../hooks/useRecipeByCateogry";
+type RecipeListProps = {
+  render?: React.ReactNode
+  recipes?: RecipePreview[]
+} & React.PropsWithChildren
 
-export async function RecipeList() {
-  const recipes = await getRecipes();
+export function RecipeList(props: RecipeListProps) {
+  const router = useRouter()
+  if (props.recipes && props.recipes?.length > 0) {
+    return (
+      <Grid>
+        <RecipeCardMapped action={(id: string) => router.push("/" + id)} recipes={props.recipes} />
+      </Grid>
+    )
+  }
 
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
-      {recipes.length === 0 ? (
-        <p>No recipes yet. Be the first to add one!</p>
-      ) : (
-        <ul className="space-y-4">
-          {recipes.map((recipe, index) => (
-            <li key={index} className="border p-4 rounded-md">
-              <h3 className="text-xl font-semibold">{recipe.title}</h3>
-              <h4 className="font-medium mt-2">Ingredients:</h4>
-              <p className="whitespace-pre-line">{recipe.ingredients}</p>
-              <h4 className="font-medium mt-2">Instructions:</h4>
-              <p className="whitespace-pre-line">{recipe.instructions}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Grid className="mt-8">{props.render}</Grid>
   );
+}
+
+export const RecipeCardMapped: React.FC<
+  RecipeCardProps & { recipes: RecipePreview[] | null }
+> = (props) => {
+  const { recipes, action, className } = props
+  return (
+    <>
+      {
+        !recipes ? <div>Loading</div> :
+          recipes?.map((recipe) => (
+            <RecipeCard className={cn(className, " ")} key={recipe.id} action={action} {...recipe} />
+          ))
+      }
+    </>
+  )
+}
+
+type RecipeListByCategoryProps = {
+  category: string
+}
+export const RecipeListByCategory: React.FC<RecipeListByCategoryProps> = (props) => {
+  const { recipes } = useRecipeByCategory(props.category)
+  if (!recipes) return <div>Loading ...</div>
+  return (
+    <div className="space-y-3">
+      <h1 className="font-bold text-4xl"> More {props.category} Recipes  </h1>
+      <RecipeList recipes={recipes!} />
+    </div>
+  )
 }
